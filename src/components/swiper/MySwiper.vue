@@ -14,7 +14,7 @@
 
 <script type="text/ecmascript-6">
 import 'swiper/css/swiper.css'
-import { Swiper, SwiperSlide, directive } from 'vue-awesome-swiper'
+import { Swiper, SwiperSlide } from 'vue-awesome-swiper'
 
 export default {
   name: 'carrousel',
@@ -55,9 +55,6 @@ export default {
   components: {
     Swiper,
     SwiperSlide
-  },
-  directives: {
-    swiper: directive
   },
   methods: {}
 }
