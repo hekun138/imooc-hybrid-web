@@ -3,7 +3,7 @@
     <div class="seconds-wrap">
       <p class="seconds-wrap-title">京东秒杀</p>
       <!-- 倒计时模块组件 -->
-      <count-down :endHours="1"></count-down>
+      <count-down :endHours="18"></count-down>
     </div>
     <div class="seconds-content">
       <div class="seconds-content-item" v-for="(item, index) in dataSource" :key="index">
