@@ -5,27 +5,30 @@
       <li class="goods-options-list-item" v-for="(item, index) in optionsDatas" :key="index">
         <a class="goods-options-list-item-content" @click="onOptionsItemClick(item, index)">
           <span class="goods-options-list-item-content-name" :class="{'goods-options-list-item-content-name-active' : selectOption.id === item.id}">{{item.name}}</span>
-          <span class="goods-options-list-item-content-caret caret" v-if="item.subs.length >0"></span>
+          <span class="goods-options-list-item-content-caret caret"
+          v-if="item.subs.length>0"
+          :class="[isShowSubContent && selectOption.id === item.id ? 'goods-options-list-item-content-caret-open' : 'goods-options-list-item-content-caret-close']"></span>
         </a>
       </li>
     </ul>
     <!-- 子选项内容 -->
-    <div class="options-sub-content" v-show="isShowSubContent">
-      <ul class="options-sub-content-list">
-        <li class="options-sub-content-list-item" v-for="(item, index) in selectOption.subs" :key="index">
-          <a class="options-sub-content-list-item-content" @click="onSubOptionsItemClick(item, index)">
-            <span class="options-sub-content-list-item-content-name" :class="{'options-sub-content-list-item-content-name-active' : selectOption.id === item.id}">{{item.name}}</span>
-            <img class="options-sub-content-list-item-content-select" src="@img/options-select.svg" alt="" v-show="selectOption.id === item.id"/>
-          </a>
-        </li>
-      </ul>
-    </div>
+    <transition name="fold-height">
+      <div class="options-sub-content" v-show="isShowSubContent">
+        <ul class="options-sub-content-list">
+          <li class="options-sub-content-list-item" v-for="(item, index) in selectOption.subs" :key="index">
+            <a class="options-sub-content-list-item-content" @click="onSubOptionsItemClick(item, index)">
+              <span class="options-sub-content-list-item-content-name" :class="{'options-sub-content-list-item-content-name-active' : selectOption.id === item.id}">{{item.name}}</span>
+              <img class="options-sub-content-list-item-content-select" src="@img/options-select.svg" alt="" v-show="selectOption.id === item.id"/>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 export default {
-  name: '',
   data () {
     return {
       // 筛选项数据源
@@ -68,7 +71,6 @@ export default {
   created: function () {
     this.selectOption = this.optionsDatas[0]
   },
-  components: {},
   methods: {
     /**
      * 一级选项点击事件
@@ -95,9 +97,24 @@ export default {
     },
     /**
      * 二级选项点击事件
+     * 1、设置选中项为用户点击的选项（item）
+     * 2、将选中位置顶到一级选项
+     * 3、关闭子选项视图
      */
     onSubOptionsItemClick: function (item, index) {
-
+      // 1、设置选中项为用户点击的选项（item）
+      this.selectOption = item
+      // 2、将选中位置顶到一级选项
+      this.optionsDatas.forEach(options => {
+        options.subs.forEach(subOptions => {
+          if (subOptions.id === this.selectOption.id) {
+            options.id = subOptions.id
+            options.name = subOptions.name
+          }
+        })
+      })
+      // 3、关闭子选项视图
+      this.isShowSubContent = false
     }
   }
 }
@@ -126,6 +143,19 @@ export default {
             margin-right: $marginSize;
             &-active{
               color: $mainColor;
+            }
+          }
+          // 三角形的动画
+          &-caret{
+            // 子选项展开时，三角形的动画
+            &-open{
+              transform: rotate(-180deg);
+              transition: all 0.3s;
+            }
+            // 子选项关闭时，三角形的动画
+            &-close{
+              transform: rotate(0);
+              transition: all 0.3s;
             }
           }
         }
@@ -162,6 +192,35 @@ export default {
             }
           }
         }
+      }
+    }
+    // 子选项内容展开动画，当v-if="true"时候调用
+    .fold-height-enter-active{
+      animation-duration: .3s;
+      animation-name: fold-height-open;
+    }
+
+    @keyframes fold-height-open {
+      0% {
+        max-height: 0;
+      }
+      100%{
+        max-height: px2rem(180);
+      }
+    }
+
+    // 子选项内容关闭的动画，当v-if="false"时候调用
+    .fold-height-leave-active{
+      animation-duration: .3s;
+      animation-name: fold-height-close;
+    }
+
+    @keyframes fold-height-close {
+      0% {
+        max-height: px2rem(180);
+      }
+      100%{
+        max-height: 0;
       }
     }
   }
