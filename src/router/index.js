@@ -9,6 +9,12 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Main
+  },
+  {
+    path: '/goodsList',
+    name: 'GoodsList',
+    // vue-router 懒加载 -> GoodsList
+    component: () => import(/* webpackChunkName: "goodsList" */ '../views/GoodsList.vue')
   }
 ]
 

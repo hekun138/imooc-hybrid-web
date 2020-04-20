@@ -5,7 +5,7 @@
     3、可以接收从外部指定的一个样式（可以在父组件中指定 navigationBar 的 style）
   -->
   <div class="nav-bar z-index-max" :class="{'bottom-line': pageName}" :style="navBarStyle">
-    <div class="left">
+    <div class="left" @click="$emit('onLeftClick')">
       <!-- 默认状态 -->
       <img v-if="isShowBack" src="@img/back.svg" alt=""/>
       <!-- 具名插槽 -->
@@ -81,6 +81,7 @@ export default {
       .page-title{
         font-size: $titleSize;
         align-self: center;
+        margin: 0 auto;
       }
     }
   }
