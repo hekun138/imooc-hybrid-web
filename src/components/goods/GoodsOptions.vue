@@ -13,7 +13,7 @@
     </ul>
     <!-- 子选项内容 -->
     <transition name="fold-height">
-      <div class="options-sub-content" v-show="isShowSubContent">
+      <div class="options-sub-content z-index-2" v-show="isShowSubContent">
         <ul class="options-sub-content-list">
           <li class="options-sub-content-list-item" v-for="(item, index) in selectOption.subs" :key="index">
             <a class="options-sub-content-list-item-content" @click="onSubOptionsItemClick(item, index)">
@@ -24,6 +24,8 @@
         </ul>
       </div>
     </transition>
+    <!-- 遮盖层 -->
+    <div class="cover" v-show="isShowSubContent" @click="isShowSubContent = false"></div>
   </div>
 </template>
 

@@ -1,12 +1,20 @@
 <template>
   <!--
+    如何在同一个组件中去展示不同的样式
+    1、html 表示整个布局的结构，具体的展示样式，将由css决定
+    2、每种展示样式对应不同的css，对应不同的类名
+      1、垂直列表 -> goods-list
+      2、网格布局 —> goods-grid
+      3、瀑布流布局 -> goods-waterfall
+    3、实现不同的展示形式，本质上就是实现不同的 css 样式
+
     瀑布流的布局：
     1、创建商品列表的基本html和css，让 item 相对于 goods（div）进行排列
     2、生成不同高度的图片，撑起不同高度的item
     3、计算 item 的位置，来达到从上到下，从左到右依次排列的目的
   -->
-  <div class="goods goods-waterfall" :style="{height: goodsViewHeight}">
-    <div class="goods-item goods-waterfall-item" ref="goodsItem" v-for="(item, index) in dataSource" :key="index" :style="goodsItemStyles[index]">
+  <div class="goods" :class="layoutClass" :style="{height: goodsViewHeight}">
+    <div class="goods-item" :class="layoutItemCalss" ref="goodsItem" v-for="(item, index) in dataSource" :key="index" :style="goodsItemStyles[index]">
       <!-- 图片 -->
       <img class="goods-item-img" :src="item.img" alt="" :style="imgStyles[index]"/>
       <!-- desc 描述 -->
@@ -31,7 +39,18 @@
 import Direct from '@c/goods/Direct.vue'
 import NoHave from '@c/goods/NoHave.vue'
 export default {
-  name: '',
+  props: {
+    /**
+     * 在父元素中指定的展示形式
+     * 1: 垂直列表
+     * 2: 网格布局
+     * 3: 瀑布流布局
+     */
+    layoutType: {
+      type: String,
+      default: '1'
+    }
+  },
   data () {
     return {
       // 数据源
@@ -47,7 +66,10 @@ export default {
       // item 样式集合
       goodsItemStyles: [],
       // goods组件的高度
-      goodsViewHeight: 0
+      goodsViewHeight: '100%',
+      // 不同展示形式下的类名
+      layoutClass: 'goods-list',
+      layoutItemCalss: 'goods-list-item'
     }
   },
   components: {
@@ -64,11 +86,11 @@ export default {
     initData: function () {
       this.$http.get('/goods').then(data => {
         this.dataSource = data.list
-        this.initImgStyles()
-        // 调用创建瀑布流的方法（等到 dom 创建完成之后）
-        this.$nextTick(() => {
-          this.initWaterfall()
-        })
+        // this.initImgStyles()
+        // // 调用创建瀑布流的方法（等到 dom 创建完成之后）
+        // this.$nextTick(() => {
+        //   this.initWaterfall()
+        // })
       })
     },
     /**
@@ -146,6 +168,8 @@ export default {
   @import '@css/style.scss';
   .goods{
     background-color: $bgColor;
+    overflow: hidden;
+    overflow-y: auto;
     &-item{
       background-color: #fff;
       padding: $marginSize;
@@ -178,6 +202,25 @@ export default {
       }
     }
   }
+  // 垂直列表
+  .goods-list{
+    &-item{
+      display: flex;
+      border-bottom: 1px solid $lineColor;
+      .goods-item-img{
+        width: px2rem(120);
+        height: px2rem(120);
+      }
+      .goods-item-desc{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: $marginSize;
+      }
+    }
+  }
+
+  // 瀑布流
   .goods-waterfall{
     position: relative;
     margin: $marginSize;

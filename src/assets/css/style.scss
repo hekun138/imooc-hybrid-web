@@ -29,3 +29,11 @@
   border-left: px2rem(6) solid transparent;
   border-right: px2rem(6) solid transparent;
 }
+
+// 遮盖层
+.cover{
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.4);
+}
