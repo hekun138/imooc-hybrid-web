@@ -23,7 +23,12 @@
 
   <!-- 如果不允许 goods 单独滑动，那么就不添加 goods-scroll 类 -->
   <div class="goods" :class="[layoutClass, {'goods-scroll' : isScroll}]" :style="{height: goodsViewHeight}">
-    <div class="goods-item" :class="layoutItemCalss" ref="goodsItem" v-for="(item, index) in sortGoodsData" :key="index" :style="goodsItemStyles[index]">
+    <div class="goods-item"
+      :class="layoutItemCalss"
+      ref="goodsItem" v-for="(item, index) in sortGoodsData"
+      :key="index" :style="goodsItemStyles[index]"
+      @click="onItemClick(item)"
+    >
       <!-- 图片 -->
       <img class="goods-item-img" :src="item.img" alt="" :style="imgStyles[index]"/>
       <!-- desc 描述 -->
@@ -289,6 +294,22 @@ export default {
         // 5、item 配置完成之后，对比左右两侧最大的高度，最大的高度为 goods 组件的高度
         this.goodsViewHeight = (leftHeightTotal > rightHeightTotal ? leftHeightTotal : rightHeightTotal) + 'px'
       }
+    },
+    /**
+     * 商品点击事件
+     */
+    onItemClick: function (item) {
+      // 商品无库存，不允许跳转
+      if (!item.isHave) {
+        alert('该商品无库存')
+        return
+      }
+      this.$router.push({
+        name: 'GoodsDetail',
+        params: {
+          goods: item
+        }
+      })
     }
   },
   watch: {
