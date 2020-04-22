@@ -118,6 +118,14 @@ export default {
       // 3、关闭子选项视图
       this.isShowSubContent = false
     }
+  },
+  watch: {
+    /**
+     * 监听筛选项改变
+     */
+    selectOption: function (newV) {
+      this.$emit('optionsChange', newV.id)
+    }
   }
 }
 </script>

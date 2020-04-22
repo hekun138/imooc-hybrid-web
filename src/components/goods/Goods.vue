@@ -13,8 +13,17 @@
     2、生成不同高度的图片，撑起不同高度的item
     3、计算 item 的位置，来达到从上到下，从左到右依次排列的目的
   -->
-  <div class="goods" :class="layoutClass" :style="{height: goodsViewHeight}">
-    <div class="goods-item" :class="layoutItemCalss" ref="goodsItem" v-for="(item, index) in dataSource" :key="index" :style="goodsItemStyles[index]">
+
+  <!--
+    商品排序：
+    1、排序之后的数据源，用来在 html 中进行展示（替换掉 dataSource）
+    2、需要定义排序规则（可以直接使用 GoodsOptions 中数据源的 id）
+    3、定义排序的方法，根据排序规则来修改对应的排序
+  -->
+
+  <!-- 如果不允许 goods 单独滑动，那么就不添加 goods-scroll 类 -->
+  <div class="goods" :class="[layoutClass, {'goods-scroll' : isScroll}]" :style="{height: goodsViewHeight}">
+    <div class="goods-item" :class="layoutItemCalss" ref="goodsItem" v-for="(item, index) in sortGoodsData" :key="index" :style="goodsItemStyles[index]">
       <!-- 图片 -->
       <img class="goods-item-img" :src="item.img" alt="" :style="imgStyles[index]"/>
       <!-- desc 描述 -->
@@ -49,12 +58,34 @@ export default {
     layoutType: {
       type: String,
       default: '1'
+    },
+    /**
+     * 是否允许 goods 单独滑动
+     * 默认允许 goods 单独滑动
+     */
+    isScroll: {
+      type: Boolean,
+      default: true
+    },
+    /**
+     * 排序规则（依赖 GoodsOptions 数据源的id）
+     * 1、默认
+     * 1-2、价格由高到低
+     * 1-3、销量由高到低
+     * 2、有货优先
+     * 3、直营优先
+     */
+    sort: {
+      type: String,
+      default: '1'
     }
   },
   data () {
     return {
       // 数据源
       dataSource: [],
+      // 排序数据
+      sortGoodsData: [],
       // 最大高度
       MAX_IMG_HEIGHT: 230,
       // 最小高度
@@ -70,8 +101,8 @@ export default {
       // 不同展示形式下的类名
       // 1、垂直列表的展示形式（默认）-> goods-list && goods-list-item
       // 2、网格布局的展示形式 -> goods-grid && goods-grid-item
-      layoutClass: 'goods-grid',
-      layoutItemCalss: 'goods-grid-item'
+      layoutClass: 'goods-list',
+      layoutItemCalss: 'goods-list-item'
     }
   },
   components: {
@@ -88,12 +119,106 @@ export default {
     initData: function () {
       this.$http.get('/goods').then(data => {
         this.dataSource = data.list
-        // this.initImgStyles()
-        // // 调用创建瀑布流的方法（等到 dom 创建完成之后）
-        // this.$nextTick(() => {
-        //   this.initWaterfall()
-        // })
+        // 数据排序
+        this.setSortGoodsData()
+        // 设置布局
+        this.initLayout()
       })
+    },
+    /**
+     * 商品排序
+     */
+    setSortGoodsData: function () {
+      switch (this.sort) {
+        // 默认
+        case '1':
+          // 深拷贝，不改变原数组
+          this.sortGoodsData = this.dataSource.slice(0)
+          break
+        // 价格由高到低
+        case '1-2':
+          this.getSortGoodsDataFromKey('price')
+          break
+        // 销量由高到低
+        case '1-3':
+          this.getSortGoodsDataFromKey('volume')
+          break
+        // 有货优先
+        case '2':
+          this.getSortGoodsDataFromKey('isHave')
+          break
+        // 直营优先
+        case '3':
+          this.getSortGoodsDataFromKey('isDirect')
+          break
+      }
+    },
+    /**
+     * 根据传入的 key 来进行排序
+     */
+    getSortGoodsDataFromKey: function (key) {
+      /**
+       * sort 可以完成数组的数据排序
+       * 当接收的值为负数的时候，表示goods1排列在goods2之前
+       * 当接收的值为正数的时候，表示goods1排列在goods2之后
+       * 接收的值为0的时候，表示排序不变
+       */
+      this.sortGoodsData.sort((goods1, goods2) => {
+        // 根据传入的 key 获取对应的 value
+        const v1 = goods1[key]; const v2 = goods2[key]
+        // 对 value 进行对比
+        // boolean 类型的值（有货优先，直营优先）
+        if (typeof v1 === 'boolean') {
+          if (v1) {
+            return -1
+          }
+          if (v2) {
+            return 1
+          }
+          return 0
+        }
+        // float 类型的值处理（价格、销量）
+        if (parseFloat(v1) >= parseFloat(v2)) {
+          return -1
+        }
+        return 1
+      })
+    },
+    /**
+     * 设置布局，为不同的 layoutType 设定不同的展示形式
+     * 1、初始化影响到布局的数据
+     *  1、goodsViewHeight -> 垂直布局、网格布局（100%）、瀑布流（实际高度）
+     *  2、goodsItemStyles
+     *  3、imgStyles
+     * 2、为不同的layoutType 设置不同的展示类
+     */
+    initLayout: function () {
+      this.goodsViewHeight = '100%'
+      this.goodsItemStyles = []
+      this.imgStyles = []
+
+      switch (this.layoutType) {
+        // 垂直列表
+        case '1':
+          this.layoutClass = 'goods-list'
+          this.layoutItemCalss = 'goods-list-item'
+          break
+        // 网格布局
+        case '2':
+          this.layoutClass = 'goods-grid'
+          this.layoutItemCalss = 'goods-grid-item'
+          break
+        // 瀑布流
+        case '3':
+          this.layoutClass = 'goods-waterfall'
+          this.layoutItemCalss = 'goods-waterfall-item'
+          this.initImgStyles()
+          // 调用创建瀑布流的方法（等到 dom 创建完成之后）
+          this.$nextTick(() => {
+            this.initWaterfall()
+          })
+          break
+      }
     },
     /**
      * 返回随机的图片高度
@@ -159,8 +284,25 @@ export default {
         // 4、保存计算出的 item 的所有样式，配置到 item 上
         this.goodsItemStyles.push(goodsItemStyle)
       })
-      // 5、item 配置完成之后，对比左右两侧最大的高度，最大的高度为 goods 组件的高度
-      this.goodsViewHeight = (leftHeightTotal > rightHeightTotal ? leftHeightTotal : rightHeightTotal) + 'px'
+      // 在不允许 Goods 单独滑动的时候
+      if (!this.isScroll) {
+        // 5、item 配置完成之后，对比左右两侧最大的高度，最大的高度为 goods 组件的高度
+        this.goodsViewHeight = (leftHeightTotal > rightHeightTotal ? leftHeightTotal : rightHeightTotal) + 'px'
+      }
+    }
+  },
+  watch: {
+    /**
+     * 监听layoutType
+     */
+    layoutType: function () {
+      this.initLayout()
+    },
+    /**
+     * 监听 sort 的改变
+     */
+    sort: function () {
+      this.setSortGoodsData()
     }
   }
 }
@@ -170,8 +312,10 @@ export default {
   @import '@css/style.scss';
   .goods{
     background-color: $bgColor;
-    overflow: hidden;
-    overflow-y: auto;
+    &-scroll{
+      overflow: hidden;
+      overflow-y: auto;
+    }
     &-item{
       background-color: #fff;
       padding: $marginSize;
