@@ -3,49 +3,63 @@
     <navigation-bar :isShowBack="false" :navBarStyle="navBarStyle">
       <template v-slot:nav-left>
         <div class="goods-detail-nav-left" @click="onBackClick">
-          <img src="@img/back-2.svg" alt=""/>
+          <!-- 默认状态下黑色后退按钮 -->
+          <img src="@img/back-2.svg" alt="" :style="{opacity: leftImgOpacity}"/>
+          <!-- 完全展示之后的白色后退按钮 -->
+          <img src="@img/back-white.svg" alt="" :style="{opacity: navBarSlotOpacity}"/>
         </div>
+      </template>
+      <template v-slot:nav-center>
+        <p class="goods-detail-nav-title" :style="{opacity: navBarSlotOpacity}">商品详情</p>
       </template>
     </navigation-bar>
     <div class="goods-detail-content">
-      <my-swiper
-        :swiperImgs="goodsData.swiperImgs"
-        :height="SWIPER_IMAGE_HEIGHT"
-        :paginationType="'2'"
-      ></my-swiper>
+      <parallax @onScrollChange="onScrollChange">
+        <!-- 缓慢移动区 -->
+        <template v-slot:parallax-slow>
+          <my-swiper
+            :swiperImgs="goodsData.swiperImgs"
+            :height="SWIPER_IMAGE_HEIGHT"
+            :paginationType="'2'"
+          ></my-swiper>
+        </template>
+        <!-- 正常移动区 -->
+        <template>
+          <div class="goods-detail-content-desc">
+            <div class="goods-detail-content-desc-item">
+              <!-- 商品价格 -->
+              <p class="goods-detail-content-desc-item-price">￥{{goodsData.price | priceValue}}</p>
+              <!-- 商品名称 -->
+              <p class="goods-detail-content-desc-item-name">
+                <!-- 直营 -->
+                <direct v-if="goodsData.isDirect"></direct>
+                {{goodsData.name}}
+              </p>
+            </div>
+            <div class="goods-detail-content-desc-item">
+              <!-- 已选商品 -->
+              <p class="goods-detail-content-desc-item-select">
+                <span>已选</span>
+                <span class="text single-row-text">{{goodsData.name}}</span>
+              </p>
+              <!-- 附加服务 -->
+              <div class="goods-detail-content-desc-item-support">
+                <ul class="goods-detail-content-desc-item-support-list">
+                  <li v-for="(item, index) in attachDatas" :key="index" class="goods-detail-content-desc-item-support-list-item">
+                    <img src="@img/support.svg" alt=""/>
+                    <span>{{item}}</span>
+                  </li>
+                </ul>
+              </div>
+              <!-- 商品描述 -->
+              <div class="goods-detail-content-desc-detail">
+                <img v-for="(item, index) in goodsData.detailImgs" :src="item" :key="index" alt="" />
+              </div>
+            </div>
+          </div>
+        </template>
+      </parallax>
       <!-- 内容 -->
-      <div class="goods-detail-content-desc">
-        <div class="goods-detail-content-desc-item">
-          <!-- 商品价格 -->
-          <p class="goods-detail-content-desc-item-price">￥{{goodsData.price | priceValue}}</p>
-          <!-- 商品名称 -->
-          <p class="goods-detail-content-desc-item-name">
-            <!-- 直营 -->
-            <direct v-if="goodsData.isDirect"></direct>
-            {{goodsData.name}}
-          </p>
-        </div>
-        <div class="goods-detail-content-desc-item">
-          <!-- 已选商品 -->
-          <p class="goods-detail-content-desc-item-select">
-            <span>已选</span>
-            <span class="text single-row-text">{{goodsData.name}}</span>
-          </p>
-          <!-- 附加服务 -->
-          <div class="goods-detail-content-desc-item-support">
-            <ul class="goods-detail-content-desc-item-support-list">
-              <li v-for="(item, index) in attachDatas" :key="index" class="goods-detail-content-desc-item-support-list-item">
-                <img src="@img/support.svg" alt=""/>
-                <span>{{item}}</span>
-              </li>
-            </ul>
-          </div>
-          <!-- 商品描述 -->
-          <div class="goods-detail-content-desc-detail">
-            <img v-for="(item, index) in goodsData.detailImgs" :src="item" :key="index" alt="" />
-          </div>
-        </div>
-      </div>
     </div>
     <!-- 加入购物车，立即购买 -->
     <div class="goods-detail-buy">
@@ -59,14 +73,14 @@
 import NavigationBar from '@c/currency/NavigationBar.vue'
 import MySwiper from '@c/swiper/MySwiper.vue'
 import Direct from '@c/goods/Direct.vue'
+import Parallax from '@c/parallax/Parallax.vue'
 
 export default {
   data () {
     return {
-      navBarStyle: {
-        backgroundColor: '',
-        position: 'fixed'
-      },
+      // 锚点值
+      ANCHOR_SCROLL_TOP: 310,
+      // swiper 高度
       SWIPER_IMAGE_HEIGHT: '364px',
       goodsData: {},
       // 附加服务
@@ -77,13 +91,16 @@ export default {
         '211限时送',
         '可自提',
         '不可使用优惠券'
-      ]
+      ],
+      // 页面滑动
+      scrollValue: 0
     }
   },
   components: {
     NavigationBar,
     MySwiper,
-    Direct
+    Direct,
+    Parallax
   },
   methods: {
     /**
@@ -91,11 +108,45 @@ export default {
      */
     onBackClick: function () {
       this.$router.go(-1)
+    },
+    /**
+     * 监听页面滑动
+     */
+    onScrollChange: function (scrollValue) {
+      // 获取当前页面的滑动值
+      this.scrollValue = scrollValue
     }
   },
   created: function () {
     const { history: { current: { params: data } } } = this.$router
     this.goodsData = data.goods
+  },
+  computed: {
+    /**
+     * 默认状态下左侧后退按钮的透明度
+     */
+    leftImgOpacity: function () {
+      // 在home中，目的：navBar 逐渐显示：scroll / 锚点值 = opacity
+      // 默认状态下后退按钮，逐渐隐藏：1 - opacity
+      return 1 - this.scrollValue / this.ANCHOR_SCROLL_TOP
+    },
+    /**
+     * navBar 的样式
+     */
+    navBarStyle: function () {
+      return {
+        backgroundColor: 'rgba(216, 30, 6, ' + this.navBarSlotOpacity + ')',
+        position: 'fixed',
+        top: 0
+      }
+    },
+    /**
+     * navBar 插槽透明度
+     * 默认状态下后退按钮逐渐隐藏的过程中，插槽逐渐显示
+     */
+    navBarSlotOpacity: function () {
+      return 1 - this.leftImgOpacity
+    }
   }
 }
 </script>
@@ -103,6 +154,7 @@ export default {
 <style lang="scss" scoped>
   @import '@css/style.scss';
   .goods-detail{
+    position: absolute;
     width: 100%;
     height: 100%;
     display: flex;
@@ -110,13 +162,22 @@ export default {
     &-nav-left{
       width: 100%;
       display: flex;
+      // 两个图片重合
+      position: relative;
       img{
+        position: absolute;
         align-self: center;
       }
     }
+    &-nav-title{
+      width: 100%;
+      height: 100%;
+      font-size: $titleSize;
+      font-weight: bold;
+      text-align: center;
+      color: #fff;
+    }
     &-content{
-      overflow: hidden;
-      overflow-y: auto;
       height: 100%;
       &-desc{
         width: 100%;
