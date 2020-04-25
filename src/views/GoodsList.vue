@@ -18,6 +18,7 @@ import GoodsOptions from '@c/goods/GoodsOptions.vue'
 import Goods from '@c/goods/Goods.vue'
 
 export default {
+  name: 'goodsList',
   created: function () {
     this.layoutType = this.layoutTypeDatas[0]
   },

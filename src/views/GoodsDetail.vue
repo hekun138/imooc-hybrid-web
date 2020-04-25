@@ -76,6 +76,7 @@ import Direct from '@c/goods/Direct.vue'
 import Parallax from '@c/parallax/Parallax.vue'
 
 export default {
+  name: 'goodsDetail',
   data () {
     return {
       // 锚点值

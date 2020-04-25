@@ -11,7 +11,7 @@
 <script>
 import toolBar from '@c/currency/ToolBar.vue'
 export default {
-  name: '',
+  name: 'main',
   data () {
     return {
       currentComponent: 'home'

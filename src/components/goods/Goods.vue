@@ -22,7 +22,7 @@
   -->
 
   <!-- 如果不允许 goods 单独滑动，那么就不添加 goods-scroll 类 -->
-  <div class="goods" :class="[layoutClass, {'goods-scroll' : isScroll}]" :style="{height: goodsViewHeight}">
+  <div class="goods" :class="[layoutClass, {'goods-scroll' : isScroll}]" :style="{height: goodsViewHeight}" ref="goods" @scroll="onScrollChange">
     <div class="goods-item"
       :class="layoutItemCalss"
       ref="goodsItem" v-for="(item, index) in sortGoodsData"
@@ -107,7 +107,9 @@ export default {
       // 1、垂直列表的展示形式（默认）-> goods-list && goods-list-item
       // 2、网格布局的展示形式 -> goods-grid && goods-grid-item
       layoutClass: 'goods-list',
-      layoutItemCalss: 'goods-list-item'
+      layoutItemCalss: 'goods-list-item',
+      // 滑动距离
+      scrollTopValue: 0
     }
   },
   components: {
@@ -116,6 +118,12 @@ export default {
   },
   created: function () {
     this.initData()
+  },
+  activated: function () {
+    /**
+     * 定位页面滑动位置
+     */
+    this.$refs.goods.scrollTop = this.scrollTopValue
   },
   methods: {
     /**
@@ -311,6 +319,12 @@ export default {
           goods: item
         }
       })
+    },
+    /**
+     * 监听滑动事件
+     */
+    onScrollChange: function ($event) {
+      this.scrollTopValue = $event.target.scrollTop
     }
   },
   watch: {

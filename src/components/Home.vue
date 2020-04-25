@@ -1,5 +1,5 @@
 <template>
-  <div class="home" @scroll="onScrollChange">
+  <div class="home" @scroll="onScrollChange" ref="home">
     <navigation-bar :isShowBack="false" :navBarStyle="navBarStyle">
       <!-- 左侧插槽 -->
       <template v-slot:nav-left>
@@ -50,7 +50,6 @@ import Goods from '@c/goods/Goods.vue'
 import NavigationBar from '@c/currency/NavigationBar.vue'
 import Search from '@c/currency/Search.vue'
 export default {
-  name: '',
   data () {
     return {
       swiperData: [],
@@ -111,6 +110,13 @@ export default {
   created: function () {
     this.navBarCurrentSlotStyle = this.navBarSlotStyle.normal
     this.initData()
+  },
+  /**
+   * keepAlive 组件被激活的时候调用
+   * 去为滑动模块指定滑动距离
+   */
+  activated: function () {
+    this.$refs.home.scrollTop = this.scrollTopValue
   },
   methods: {
     // 获取数据
