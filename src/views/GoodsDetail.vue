@@ -63,8 +63,8 @@
     </div>
     <!-- 加入购物车，立即购买 -->
     <div class="goods-detail-buy">
-      <div class="goods-detail-buy-add">加入购物车</div>
-      <div class="goods-detail-buy-now">立即购买</div>
+      <div class="goods-detail-buy-add" @click="onAddGoodsClick()">加入购物车</div>
+      <div class="goods-detail-buy-now" @click="onBuyClick()">立即购买</div>
     </div>
   </div>
 </template>
@@ -116,11 +116,63 @@ export default {
     onScrollChange: function (scrollValue) {
       // 获取当前页面的滑动值
       this.scrollValue = scrollValue
+    },
+    /**
+     * 根据商品id获取到商品数据
+     */
+    loadGoodsData: function () {
+      this.$http.get('/goodsDetail', {
+        params: {
+          goodsId: this.$route.query.goodsId
+        }
+      }).then(data => {
+        this.goodsData = data.goodsData
+      })
+    },
+    /**
+     * 立即购买
+     */
+    onBuyClick: function () {
+      this.$router.push({
+        name: 'Buy',
+        params: {
+          routerType: 'push'
+        },
+        query: {
+          goodsId: this.goodsData.id
+        }
+      })
+    },
+    /**
+     * 加入购物车
+     */
+    onAddGoodsClick: function () {
+      alert('添加成功')
+      this.$router.push({
+        name: 'Main',
+        params: {
+          routerType: 'push',
+          // 自定义标记，在 toolbar 中定义的tab数据源数据的下标
+          componentIndex: 1,
+          // 自定义标记，清空虚拟任务栈
+          clearTask: true
+        }
+      })
     }
   },
   created: function () {
-    const { history: { current: { params: data } } } = this.$router
-    this.goodsData = data.goods
+    /**
+     * 问题：
+     * 当我们直接在浏览器刷新时，vueRouter里面的params数据会被重置
+     * 这个时候，我们拿到的 goods === undefined
+     * 解决方案：
+     * 在页面里面，无论我们如何去刷新页面，我们都可以获取到这个商品的数据
+     * 1、在网页的url中添加上商品的标记（goodsId）
+     * 2、通过后台数据获取
+     */
+    // const { history: { current: { params: data } } } = this.$router
+    // this.goodsData = data.goods
+    this.loadGoodsData()
   },
   computed: {
     /**
@@ -180,6 +232,7 @@ export default {
     }
     &-content{
       height: 100%;
+      overflow: hidden;
       &-desc{
         width: 100%;
         background-color: $bgColor;

@@ -23,7 +23,6 @@
         1、应该在什么时机去改变当前页面的滑动距离
         2、可以在组件的 activated（keep-alive组件被激活的时候才会调用） 方法中去指定页面滑动模块的滑动距离
     -->
-
     <transition :name="transitionName">
       <!-- 所有通过 router-view 加载的页面组件都会被缓存 -->
       <keep-alive :include="virtualTaskStack">
@@ -39,7 +38,7 @@ export default {
       transitionName: 'fold-left',
       // 虚拟任务栈
       virtualTaskStack: [
-        'main'
+        'imooc'
       ]
     }
   },
@@ -50,7 +49,6 @@ export default {
       const routerType = to.params.routerType
       if (routerType === 'push') {
         // 当进入新页面的时候，保存新页面名称到虚拟任务栈
-        console.log(this.virtualTaskStack)
         this.virtualTaskStack.push(to.name)
         // 跳转页面
         this.transitionName = 'fold-left'
@@ -59,6 +57,12 @@ export default {
         this.virtualTaskStack.pop()
         // 后退页面
         this.transitionName = 'fold-right'
+      }
+      /**
+       * 初始化虚拟任务栈
+       */
+      if (to.params.clearTask) {
+        this.virtualTaskStack = ['imooc']
       }
     }
   }

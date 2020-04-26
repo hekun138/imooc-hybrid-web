@@ -45,3 +45,17 @@
   white-space: nowrap;
   display: inline-block;
 }
+
+// 提交按钮
+.page-commit{
+  width: 90%;
+  height: px2rem(46);
+  line-height: px2rem(46);
+  margin-left: 5%;
+  display: block;
+  background-color: $mainColor;
+  border-radius: px2rem(50);
+  font-size: $titleSize;
+  text-align: center;
+  color: #fff;
+}

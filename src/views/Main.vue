@@ -2,16 +2,18 @@
   <!-- 在 vue 这种单页面的应用程序中，
   它只存在一个页面 - App.vue，其他的都是组件 -->
   <div class="main">
-    <!-- 动态组件 -->
-    <component :is="currentComponent"></component>
-    <tool-bar @onChangeFragment="onChangeFragment"></tool-bar>
+    <keep-alive>
+      <!-- 动态组件 -->
+      <component :is="currentComponent"></component>
+    </keep-alive>
+    <tool-bar ref="toolbar" @onChangeFragment="onChangeFragment"></tool-bar>
   </div>
 </template>
 
 <script>
 import toolBar from '@c/currency/ToolBar.vue'
 export default {
-  name: 'main',
+  name: 'imooc',
   data () {
     return {
       currentComponent: 'home'
@@ -24,10 +26,25 @@ export default {
     shopping: () => import('@c/Shopping'),
     my: () => import('@c/My')
   },
+  activated: function () {
+    // 在keepAlive 被激活的时候，调用指定加载页面组件的方法
+    this.pushFragment()
+  },
   methods: {
     // 组件切换
     onChangeFragment: function (componentName) {
       this.currentComponent = componentName
+    },
+    /**
+     * 指定加载的页面组件
+     */
+    pushFragment: function () {
+      // 获取到组件加载的下标
+      const componentIndex = this.$route.params.componentIndex
+      // 如果没有下标的话，直接让方法 return 掉
+      if (componentIndex === undefined) return
+      // 通过 toolBar 来切换对应的组件
+      this.$refs.toolbar.pushFragment(componentIndex)
     }
   }
 }

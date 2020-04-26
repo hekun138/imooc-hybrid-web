@@ -25,7 +25,8 @@
   <div class="goods" :class="[layoutClass, {'goods-scroll' : isScroll}]" :style="{height: goodsViewHeight}" ref="goods" @scroll="onScrollChange">
     <div class="goods-item"
       :class="layoutItemCalss"
-      ref="goodsItem" v-for="(item, index) in sortGoodsData"
+      ref="goodsItem"
+      v-for="(item, index) in sortGoodsData"
       :key="index" :style="goodsItemStyles[index]"
       @click="onItemClick(item)"
     >
@@ -315,8 +316,11 @@ export default {
       this.$router.push({
         name: 'GoodsDetail',
         params: {
-          routerType: 'push',
-          goods: item
+          routerType: 'push'
+        },
+        // 把传递的数据附加到我们的url上
+        query: {
+          goodsId: item.id
         }
       })
     },
