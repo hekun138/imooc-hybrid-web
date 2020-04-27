@@ -147,6 +147,8 @@ export default {
      * 加入购物车
      */
     onAddGoodsClick: function () {
+      // 保存商品到购物车数据中
+      this.$store.commit('addShoppingData', this.goodsData)
       alert('添加成功')
       this.$router.push({
         name: 'Main',

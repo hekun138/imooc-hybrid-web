@@ -5,8 +5,10 @@ import Vue from 'vue'
  * @param value 调用过滤器时，调用的文本
  */
 Vue.filter('priceValue', function (value) {
+  // 如果文本不存在，返回空字符
+  // value === 0; !0 === true
   if (!value) {
-    return ''
+    return '0.00'
   }
 
   // 文本转化为float
