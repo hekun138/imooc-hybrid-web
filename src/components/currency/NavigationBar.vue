@@ -4,7 +4,7 @@
     2、可通过插槽来配置具体的展示样式， -> 左、中、右 三个插槽，父组件可以通过这三个插槽来指定对应位置的布局
     3、可以接收从外部指定的一个样式（可以在父组件中指定 navigationBar 的 style）
   -->
-  <div class="nav-bar z-index-max" :class="{'bottom-line': pageName}" :style="navBarStyle">
+  <div class="nav-bar z-index-max" :class="[{'iphonex-top': $store.state.isIphoneX},{'bottom-line': pageName}]" :style="navBarStyle">
     <div class="left" @click="$emit('onLeftClick')">
       <!-- 默认状态 -->
       <img v-if="isShowBack" src="@img/back.svg" alt=""/>

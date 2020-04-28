@@ -50,7 +50,11 @@ html, body{
   /* 不指定为0，那么图片之间默认会有一个间距 */
   font-size: 0;
   /* 不允许去选中文本 */
-  user-select: none;
+	user-select: none;
+	/* IOS 下的滑动卡顿问题 */
+	-webkit-overflow-scrolling: touch;
+	/* IOS 下点击取消默认高亮效果 */
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0)
 }
 a{
 	text-decoration: none;

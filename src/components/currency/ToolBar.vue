@@ -1,5 +1,5 @@
 <template>
-  <div class="tool-bar">
+  <div class="tool-bar" :class="{'iphonex-bottom': $store.state.isIphoneX}">
     <!-- tab按钮 -->
     <div class="tool-bar-item" v-for="(item, index) in toolBarData" :key="index" @click="onChangeFragment(item, index)">
       <img class="tool-bar-item-img"

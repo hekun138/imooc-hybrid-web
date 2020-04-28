@@ -29,6 +29,16 @@
       IOS设备根据屏幕的形状可以分为两种类型：
       1、IphoneX 以下的标准屏幕
       2、IphoneX 以上的刘海屏屏幕
+
+      IOS 设备问题：
+      1、在IOS设备中，网页滚动卡顿。并且点击按钮出现高亮效果
+      2、在IphoneX 中展示，navBar紧贴留海位置展示
+      3、在Iphonex 中展示，toolBar 占据底部操作区的位置
+      IOS 设备问题解决方案：
+      1、需要指定滑动的元素使用IOS原生的滑动方式
+      2、3问题解决
+      1、判断当前设备是否为Iphonex
+      2、让项目的内容区避开Iphonex中的危险区域。让内容在安全区进行展示
     -->
     <transition :name="transitionName">
       <!-- 所有通过 router-view 加载的页面组件都会被缓存 -->
@@ -72,6 +82,9 @@ export default {
         this.virtualTaskStack = ['imooc']
       }
     }
+  },
+  created: function () {
+    this.$store.commit('setIsIphoneX', window.isIphoneX)
   }
 }
 </script>

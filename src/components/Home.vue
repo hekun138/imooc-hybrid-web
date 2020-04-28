@@ -53,7 +53,7 @@ export default {
   data () {
     return {
       swiperData: [],
-      swiperHeight: '184px',
+      swiperHeight: this.$store.state.isIphoneX ? '228px' : '184px',
       activityData: [],
       secondsData: [],
       // navBar 插槽的样式数据，包含页面未开始滑动的时候插槽的样式 和 页面滑动到锚定点之后的样式

@@ -31,7 +31,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     // 购物车数据源
-    shoppingDatas: []
+    shoppingDatas: [],
+    // 当前的设备是否为 Iphonex
+    isIphoneX: false
   },
   mutations: {
     /**
@@ -69,6 +71,13 @@ export default new Vuex.Store({
        * }
        */
       state.shoppingDatas[data.index].number = data.number
+    },
+    /**
+     * 修改 isIphoneX
+     */
+    setIsIphoneX: function (state, isIphoneX) {
+      console.log(isIphoneX)
+      state.isIphoneX = isIphoneX
     }
   },
   actions: {

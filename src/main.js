@@ -5,6 +5,7 @@ import store from './store'
 import '@js/rem'
 import '@js/axios.config.js'
 import '@js/filters.js'
+import '@js/IsIphoneX.js'
 
 Vue.config.productionTip = false
 
