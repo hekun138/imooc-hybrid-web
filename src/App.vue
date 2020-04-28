@@ -23,6 +23,13 @@
         1、应该在什么时机去改变当前页面的滑动距离
         2、可以在组件的 activated（keep-alive组件被激活的时候才会调用） 方法中去指定页面滑动模块的滑动距离
     -->
+    <!--
+      适配 沉浸式APP 问题
+      1、沉浸式展示中，NavBar 与 statusBar重叠
+      IOS设备根据屏幕的形状可以分为两种类型：
+      1、IphoneX 以下的标准屏幕
+      2、IphoneX 以上的刘海屏屏幕
+    -->
     <transition :name="transitionName">
       <!-- 所有通过 router-view 加载的页面组件都会被缓存 -->
       <keep-alive :include="virtualTaskStack">

@@ -64,6 +64,8 @@ export default {
     line-height: px2rem(44);
     display: flex;
     justify-content: space-between;
+    // 适配沉浸式手机
+    padding-top: $statusBarHeight;
     .left,.right{
       display: flex;
       height: 100%;
