@@ -5,7 +5,9 @@
       <!-- 头像区域 -->
       <div class="my-content-header" @click="onLoginClick">
         <img class="my-content-header-avatar" src="@img/avater.png" alt=""/>
-        <p class="my-content-header-login">登录/注册</p>
+        <p class="my-content-header-login">
+          {{$store.state.username ? $store.state.username : '登录/注册'}}
+        </p>
       </div>
       <!-- 工具栏区域 -->
       <div class="my-content-tools">
@@ -14,6 +16,8 @@
           <img class="my-content-tools-item-arrow" src="@img/right-arrow.svg" alt=""/>
         </div>
       </div>
+      <!-- 存在登录账户，展示退出登录按钮 -->
+      <div class="my-content-logout page-commit" v-if="$store.state.username" @click="onLogoutClick">退出登录</div>
     </div>
   </div>
 </template>
@@ -44,6 +48,47 @@ export default {
           routerType: 'push'
         }
       })
+    },
+    /**
+     * 退出登录
+     */
+    onLogoutClick: function () {
+      // 判断当前的项目是运行在 Android 设备还是 IOS 设备中
+      if (window.androidJSBridge) {
+        // window 下存在android注入的对象（androidJSBridge），则表示当前项目是android项目
+        this.onLogoutToAndroid()
+      } else if (window.webkit) {
+        // window 下存在 webkit，表示当前项目在 IOS 设备中运行
+        this.onLogoutToIOS()
+      }
+    },
+    /**
+     * 调用android退出登录的方法
+     */
+    onLogoutToAndroid: function () {
+      // 调用 android 退出登录接口
+      const result = window.androidJSBridge.logout()
+      this.onLogoutCallback(result)
+    },
+    /**
+     * 调用ios退出登录的方法
+     */
+    onLogoutToIOS: function () {
+      // 指定 ios 的回调方法
+      window.logoutCallback = this.onLogoutCallback
+      // 调用 ios 退出登录接口
+      window.webkit.messageHandlers.logout.postMessage({})
+    },
+    /**
+     * 处理退出登录的返回值
+     */
+    onLogoutCallback: function (result) {
+      if (result) {
+        this.$store.commit('clearUsername')
+        alert('退出登录成功')
+      } else {
+        alert('操作失败，请重试')
+      }
     }
   }
 }
@@ -95,6 +140,9 @@ export default {
             width: px2rem(16);
           }
         }
+      }
+      &-logout{
+        margin-top: 20%;
       }
     }
   }

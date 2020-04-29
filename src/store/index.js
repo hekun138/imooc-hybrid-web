@@ -33,7 +33,9 @@ export default new Vuex.Store({
     // 购物车数据源
     shoppingDatas: [],
     // 当前的设备是否为 Iphonex
-    isIphoneX: false
+    isIphoneX: false,
+    // 登录用户的用户名
+    username: undefined
   },
   mutations: {
     /**
@@ -78,6 +80,18 @@ export default new Vuex.Store({
     setIsIphoneX: function (state, isIphoneX) {
       console.log(isIphoneX)
       state.isIphoneX = isIphoneX
+    },
+    /**
+     * 指定username
+     */
+    setUsername: function (state, username) {
+      state.username = username
+    },
+    /**
+     * 退出登录处理username
+     */
+    clearUsername: function (state) {
+      state.username = undefined
     }
   },
   actions: {
